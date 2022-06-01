@@ -1,2 +1,9 @@
-# tipe
- Travail d'Initiative Personnelle Encadré
+# TIPE : Routage de paquets sur le réseau Internet
+> Travail d'Initiative Personnelle Encadré - MP 2022
+
+## [MCOT](mcot)
+
+## [License](license)
+
+[mcot]: https://github.com/Emrio/tipe/blob/main/MCOT.md
+[license]: https://github.com/Emrio/tipe/blob/main/LICENSE

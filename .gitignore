@@ -1,1 +1,4 @@
 .todo
+__pycache__
+dump
+.DS_Store
