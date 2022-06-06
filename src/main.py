@@ -1,12 +1,12 @@
 from time import time
 from random import choices
-import numpy as np
-from metrics import *
 from network import LocalNetworkInterface, Packet
+from routing_test import show_routing_graph, routing_test, init_bellman_ford, init_link_state
 from nodes.base import Node
 from nodes.tiers import TiersNode
 from nodes.flooding import FloodingNode
 from nodes.bellman_ford import BellmanFordNode
+from nodes.link_state import LinkStateNode
 from topo.ring import RingNetwork
 from topo.star import StarNetwork
 from topo.connected import ConnectedNetwork
@@ -20,11 +20,6 @@ image_name = lambda: str(int(time())) + '.png'
 def tiers ():
   net = TiersNetwork(T=3, NT=15, ET=8, ETT=4, S=8, NS=10, ES=5, L=20, NL=5)
   net.show(file=image_name())
-
-  print(avg_hop_distance(net.graph))
-  print(avg_weighted_distance(net.graph))
-  print(hop_diameter(net.graph))
-  print(weighted_diameter(net.graph))
 
 def star ():
   n = 5
@@ -63,66 +58,21 @@ def lan ():
   net = LocalAreaNetwork(8)
   net.show(file='lan.png')
 
-def get_routable_net (Node):
-  n = 20
-  m = 30
-  p = m / n / (n - 1) # m / (n 2)
-  nodes = [Node(i + 1) for i in range(n)]
-  # net = MeshNetwork(nodes, m)
-  net = ERNetwork(nodes, p)
-
-  for node in nodes:
-    interface = LocalNetworkInterface(node, net)
-    node.set_interface(interface)
-
-  return net, nodes
-
 def routing_flooding ():
-  net, nodes = get_routable_net(FloodingNode)
-  src, dst = choices(nodes, k=2)
-
-  src.send_packet(Packet('hello world', src.addr, dst.addr))
-
-  while len(dst.packets_received) == 0:
-    net.routing_step()
-
-  route = dst.packets_received[0].route
-  edges = set((node1, node2) for node1, node2 in zip(route[:-1], route[1:]))
-  def get_edge_color (node1, node2, weight):
-    if (node1, node2) in edges or (node2, node1) in edges:
-      return 'red'
-    return 'black'
-
-  net.show(file=image_name(), get_edge_color=get_edge_color)
+  net, route, *_ = routing_test(FloodingNode, n=20, m=2)
+  show_routing_graph(net, route)
 
 def routing_bellman_ford ():
-  net, nodes = get_routable_net(BellmanFordNode)
+  net, route, *_ = routing_test(BellmanFordNode, init_bellman_ford, n=20, m=2)
+  show_routing_graph(net, route)
 
-  for node in nodes:
-    node.update_weights()
+def routing_link_state ():
+  net, route, *_ = routing_test(LinkStateNode, init_link_state, n=20, m=2)
+  show_routing_graph(net, route)
 
-  for _ in range(50):
-    for node in nodes:
-      node.notify_neighbors()
-
-  src, dst = choices(nodes, k=2)
-
-  src.send_packet(Packet('hello world', src.addr, dst.addr))
-
-  while len(dst.packets_received) == 0:
-    net.routing_step()
-
-  route = dst.packets_received[0].route
-  edges = set((node1, node2) for node1, node2 in zip(route[:-1], route[1:]))
-  def get_edge_color (node1, node2, weight):
-    if (node1, node2) in edges or (node2, node1) in edges:
-      return 'red'
-    return 'black'
-
-  net.show(file=image_name(), get_edge_color=get_edge_color)
-
-# routing_bellman_ford()
-# mesh()
-# tiers()
-# gene_net()
 # er()
+# tiers()
+# mesh()
+routing_flooding()
+routing_bellman_ford()
+routing_link_state()

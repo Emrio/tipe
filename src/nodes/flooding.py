@@ -1,6 +1,6 @@
-from nodes.base import Node
+from nodes.routable import RoutableNode
 
-class FloodingNode(Node):
+class FloodingNode(RoutableNode):
   def __init__ (self, addr):
     super().__init__(addr)
 

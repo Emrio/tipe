@@ -49,14 +49,14 @@ class TiersNetwork(NetworkGraph):
     NT, ET = self.NT, self.ET
     self.wans = []
     for _ in range(T):
-      self.wans.append(MeshPartNetwork('wan', NT, ET, make_node))
+      self.wans.append(WideAreaNetwork(NT, ET, make_node))
 
     S = self.S
     print('S =', S)
     NS, ES = self.NS, self.ES
     self.mans = []
     for _ in range(S):
-      self.mans.append(MeshPartNetwork('man', NS, ES, make_node))
+      self.mans.append(MetropolitanAreaNetwork(NS, ES, make_node))
 
     L = self.L
     print('L =', L)
@@ -118,12 +118,22 @@ class TiersNetwork(NetworkGraph):
 
       self.connect(node1, node2)
 
-# WAN or MAN
+# WAN and MAN base
 class MeshPartNetwork(MeshNetwork):
   def __init__ (self, type, n, m, make_node):
     self.nodes = [make_node(type=type) for _ in range(n)]
     self.type = type
     super().__init__(self.nodes, m)
+
+# WAN
+class WideAreaNetwork(MeshPartNetwork):
+  def __init__(self, n, m, make_node):
+    super().__init__('wan', n, m, make_node)
+
+# MAN
+class MetropolitanAreaNetwork(MeshPartNetwork):
+  def __init__(self, n, m, make_node):
+    super().__init__('man', n, m, make_node)
 
 # LAN
 class LocalAreaNetwork(StarNetwork):

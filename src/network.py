@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 class NetworkGraph:
   def __init__ (self):
     self.graph = nx.Graph()
-
+    self.total_packet_count = 0
     self.routing_iterator = iter([])
 
   def connect (self, node1, node2, weight=None):
@@ -15,7 +15,7 @@ class NetworkGraph:
 
   def show (self, get_edge_color=None, show_weight=False, file=None):
     if get_edge_color is None:
-      get_edge_color = lambda _, _, _: 'black'
+      get_edge_color = lambda _, __, ___: 'black'
 
     pos = nx.spring_layout(self.graph, iterations=100)
 
@@ -75,7 +75,10 @@ class NetworkGraph:
 
     if node is None:
       nodes = filter(lambda n: len(n.packet_buffer) != 0, self.graph.nodes())
-      self.routing_iterator = iter(nodes)
+      nodes_list = list(nodes)
+      if nodes_list == []:
+        raise Exception('No route to host')
+      self.routing_iterator = iter(nodes_list)
       return self.routing_step()
 
     node._update_buffer()
@@ -91,6 +94,9 @@ class LocalNetworkInterface:
     self.network = network
 
   def get_neighbors (self):
+    if self.node not in self.network.graph:
+      return []
+
     return self.network.graph.neighbors(self.node)
 
   def get_neighbors_and_weights (self):
@@ -104,6 +110,7 @@ class LocalNetworkInterface:
     # copying to avoid routers manipulating the same object (ttl, ...)
     # in some routing protocols like flooding
     new_packet = packet.copy()
+    self.network.total_packet_count += 1
 
     node._on_receive_packet(new_packet, self.node)
 
@@ -124,17 +131,3 @@ class Packet:
 
   def add_node (self, node):
     self.route.append(node)
-
-# # merge multiple networks into one network
-# def merge_networks (*nets):
-#   def merge (stack):
-#     net1 = stack.pop()
-#
-#     if stack == []:
-#       return net1
-#
-#     net1.add(nets.pop())
-#     stack.append(net1)
-#     merge(stack)
-#
-#   return merge(nets)
