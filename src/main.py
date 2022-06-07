@@ -18,7 +18,7 @@ from topo.tiers import TiersNetwork, LocalAreaNetwork
 image_name = lambda: str(int(time())) + '.png'
 
 def tiers ():
-  net = TiersNetwork(T=3, NT=15, ET=8, ETT=4, S=8, NS=10, ES=5, L=20, NL=5)
+  net = TiersNetwork(T=3, NT=15, ET=8, ETT=5, S=8, NS=10, ES=5, L=20, NL=5)
   net.show(file=image_name())
 
 def star ():
@@ -71,8 +71,8 @@ def routing_link_state ():
   show_routing_graph(net, route)
 
 # er()
-# tiers()
+tiers()
 # mesh()
-routing_flooding()
-routing_bellman_ford()
-routing_link_state()
+# routing_flooding()
+# routing_bellman_ford()
+# routing_link_state()

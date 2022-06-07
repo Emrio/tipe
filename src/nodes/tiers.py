@@ -11,5 +11,5 @@ class TiersNode(Node):
     if self.type == 'man':
       return 'green'
     if self.type == 'lan-center':
-      return 'teal'
+      return 'yellow'
     return 'cyan'
